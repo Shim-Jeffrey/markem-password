@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Markem Password Calculator</title>
+<title>TASCO Password Calculator</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -27,20 +27,6 @@
   }
   h1 { font-size: 1.4rem; color: #a0c4ff; margin-bottom: 6px; }
   .subtitle { font-size: 0.85rem; color: #666; margin-bottom: 32px; }
-  .date-input-wrap { margin-bottom: 24px; }
-  .date-input-wrap label { display: block; font-size: 0.8rem; color: #888; margin-bottom: 8px; }
-  input[type="date"] {
-    width: 100%;
-    padding: 12px 16px;
-    border-radius: 10px;
-    border: 1px solid #2a2a5a;
-    background: #0f3460;
-    color: #fff;
-    font-size: 1rem;
-    text-align: center;
-    outline: none;
-  }
-  input[type="date"]:focus { border-color: #a0c4ff; }
   .row {
     background: #0f3460;
     border-radius: 10px;
@@ -61,20 +47,6 @@
   }
   .pw-box .lbl { font-size: 0.8rem; color: #a0c4ff; margin-bottom: 10px; }
   .pw-box .pw { font-size: 2.2rem; font-family: monospace; letter-spacing: 6px; color: #fff; font-weight: bold; }
-  .copy-btn {
-    margin-top: 16px;
-    padding: 10px 28px;
-    background: #a0c4ff;
-    color: #1a1a2e;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .copy-btn:hover { background: #c0d8ff; }
-  .copy-msg { font-size: 0.75rem; color: #a0c4ff; margin-top: 8px; height: 16px; }
   .map-table { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin-top: 24px; }
   .map-cell { background: #0f3460; border-radius: 6px; padding: 6px 10px; font-size: 0.75rem; font-family: monospace; color: #888; }
   .map-cell span { color: #a0c4ff; }
@@ -82,16 +54,11 @@
 </head>
 <body>
 <div class="card">
-  <h1>🖨️ Markem Password Calculator</h1>
+  <h1>🖨️ TASCO Password Calculator</h1>
   <p class="subtitle">날짜 기반 일일 패스워드 자동 계산 (서울 시간 기준)</p>
 
-  <div class="date-input-wrap">
-    <label>날짜 선택 (기본: 오늘 서울 시간)</label>
-    <input type="date" id="dateInput">
-  </div>
-
   <div class="row">
-    <span class="lbl">입력 날짜 (DD/MM/YYYY)</span>
+    <span class="lbl">오늘 날짜 (DD/MM/YYYY)</span>
     <span class="val" id="dateStr">-</span>
   </div>
 
@@ -99,9 +66,6 @@
     <div class="lbl">오늘의 패스워드</div>
     <div class="pw" id="password">-</div>
   </div>
-
-  <button class="copy-btn" onclick="copyPw()">복사하기</button>
-  <div class="copy-msg" id="copyMsg"></div>
 
   <div class="map-table" id="mapTable"></div>
 </div>
@@ -115,39 +79,6 @@
     return dateStr.split('').map(c => MAP[parseInt(c)]).join('');
   }
 
-  function update() {
-    const input = document.getElementById('dateInput').value;
-    if (!input) return;
-    const d = new Date(input);
-    const dd = pad(d.getDate());
-    const mm = pad(d.getMonth()+1);
-    const yyyy = d.getFullYear();
-    const raw = dd + mm + yyyy;
-    const pw = calcPassword(raw);
-    document.getElementById('dateStr').textContent = raw;
-    document.getElementById('password').textContent = pw;
-  }
-
-  function copyPw() {
-    const pw = document.getElementById('password').textContent;
-    if (pw === '-') return;
-    navigator.clipboard.writeText(pw).then(() => {
-      const msg = document.getElementById('copyMsg');
-      msg.textContent = '✅ 복사되었습니다!';
-      setTimeout(() => msg.textContent = '', 2000);
-    });
-  }
-
-  // 매핑 테이블 표시
-  const mt = document.getElementById('mapTable');
-  Object.entries(MAP).forEach(([k,v]) => {
-    const el = document.createElement('div');
-    el.className = 'map-cell';
-    el.innerHTML = `${k} → <span>${v}</span>`;
-    mt.appendChild(el);
-  });
-
-  // 서울 시간 기준 오늘 날짜
   function getSeoulToday() {
     const now = new Date();
     const seoul = new Date(now.toLocaleString('en-US', {timeZone: 'Asia/Seoul'}));
@@ -159,11 +90,18 @@
   }
 
   const s = getSeoulToday();
-  const todayStr = s.y+'-'+s.m+'-'+s.d;
-  document.getElementById('dateInput').value = todayStr;
-  update();
+  const raw = s.d + s.m + s.y;
+  document.getElementById('dateStr').textContent = raw;
+  document.getElementById('password').textContent = calcPassword(raw);
 
-  document.getElementById('dateInput').addEventListener('change', update);
+  // 매핑 테이블
+  const mt = document.getElementById('mapTable');
+  Object.entries(MAP).forEach(([k,v]) => {
+    const el = document.createElement('div');
+    el.className = 'map-cell';
+    el.innerHTML = `${k} → <span>${v}</span>`;
+    mt.appendChild(el);
+  });
 </script>
 </body>
 </html>
